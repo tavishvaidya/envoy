@@ -788,6 +788,10 @@ def _com_github_grpc_grpc():
         actual = "@com_google_protobuf//:protobuf_headers",
     )
     native.bind(
+        name = "libcrypto",
+        actual = "//external:crypto",
+    )
+    native.bind(
         name = "libssl",
         actual = "//external:ssl",
     )
@@ -844,6 +848,21 @@ def _com_github_grpc_grpc():
     native.bind(
         name = "upb_json_lib",
         actual = "@upb//:json",
+    )
+
+    native.bind(
+        name = "upb_generated_code_support__only_for_generated_code_do_not_use__i_give_permission_to_break_me",
+        actual = "@upb//:generated_code_support__only_for_generated_code_do_not_use__i_give_permission_to_break_me",
+    )
+
+    native.bind(
+        name = "upb_reflection",
+        actual = "@upb//:reflection",
+    )
+
+    native.bind(
+        name = "s2a_tsi",
+        actual = "@com_github_grpc_grpc//:s2a_tsi",
     )
 
 def _upb():
