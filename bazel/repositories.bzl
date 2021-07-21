@@ -789,7 +789,7 @@ def _com_github_grpc_grpc():
     )
     native.bind(
         name = "libcrypto",
-        actual = "//external:crypto",
+        actual = "@boringssl//:crypto",
     )
     native.bind(
         name = "libssl",
