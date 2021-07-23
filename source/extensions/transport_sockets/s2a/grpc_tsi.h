@@ -27,7 +27,6 @@ namespace S2A {
 
 using CFrameProtectorPtr =
     CSmartPtr<tsi_zero_copy_grpc_protector, tsi_zero_copy_grpc_protector_destroy>;
-
 using CHandshakerResultPtr = CSmartPtr<tsi_handshaker_result, tsi_handshaker_result_destroy>;
 using CHandshakerPtr = CSmartPtr<tsi_handshaker, tsi_handshaker_destroy>;
 
