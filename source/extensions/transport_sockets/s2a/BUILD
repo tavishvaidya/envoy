@@ -22,3 +22,17 @@ envoy_cc_library(
         "//source/common/common:c_smart_ptr_lib",
     ],
 )
+
+envoy_cc_library(
+    name = "tsi_frame_protector",
+    srcs = [
+        "tsi_frame_protector.cc",
+    ],
+    hdrs = [
+        "tsi_frame_protector.h",
+    ],
+    deps = [
+        ":grpc_tsi_wrapper",
+        "//source/common/buffer:buffer_lib",
+    ],
+)
