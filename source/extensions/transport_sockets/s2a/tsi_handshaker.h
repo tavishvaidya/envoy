@@ -6,7 +6,7 @@
 #include "envoy/event/dispatcher.h"
 
 #include "source/common/common/c_smart_ptr.h"
-#include "source/extensions/transport_sockets/alts/grpc_tsi.h"
+#include "source/extensions/transport_sockets/s2a/grpc_tsi.h"
 
 namespace Envoy {
 namespace Extensions {
