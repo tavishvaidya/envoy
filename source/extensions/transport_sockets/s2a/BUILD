@@ -36,3 +36,18 @@ envoy_cc_library(
         "//source/common/buffer:buffer_lib",
     ],
 )
+
+envoy_cc_library(
+    name = "tsi_handshaker",
+    srcs = [
+        "tsi_handshaker.cc",
+    ],
+    hdrs = [
+        "tsi_handshaker.h",
+    ],
+    deps = [
+        ":grpc_tsi_wrapper",
+        "//envoy/event:dispatcher_interface",
+        "//source/common/buffer:buffer_lib",
+    ],
+)
