@@ -33,3 +33,26 @@ envoy_extension_cc_test(
         "//test/mocks/event:event_mocks",
     ],
 )
+
+envoy_extension_cc_test(
+    name = "tsi_socket_test",
+    srcs = ["tsi_socket_test.cc"],
+    extension_names = ["envoy.transport_sockets.s2a"],
+    deps = [
+        "//envoy/event:dispatcher_interface",
+        "//source/extensions/transport_sockets/s2a:tsi_socket",
+        "//test/mocks/buffer:buffer_mocks",
+        "//test/mocks/event:event_mocks",
+        "//test/mocks/network:network_mocks",
+    ],
+)
+
+envoy_extension_cc_test(
+    name = "noop_transport_socket_callbacks_test",
+    srcs = ["noop_transport_socket_callbacks_test.cc"],
+    extension_names = ["envoy.transport_sockets.s2a"],
+    deps = [
+        "//source/extensions/transport_sockets/s2a:noop_transport_socket_callbacks_lib",
+        "//test/mocks/network:network_mocks",
+    ],
+)

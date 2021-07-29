@@ -51,3 +51,36 @@ envoy_cc_library(
         "//source/common/buffer:buffer_lib",
     ],
 )
+
+envoy_cc_library(
+    name = "tsi_socket",
+    srcs = [
+        "tsi_socket.cc",
+    ],
+    hdrs = [
+        "tsi_socket.h",
+    ],
+    deps = [
+        ":noop_transport_socket_callbacks_lib",
+        ":tsi_frame_protector",
+        ":tsi_handshaker",
+        "//envoy/network:io_handle_interface",
+        "//envoy/network:transport_socket_interface",
+        "//source/common/buffer:buffer_lib",
+        "//source/common/buffer:watermark_buffer_lib",
+        "//source/common/common:cleanup_lib",
+        "//source/common/common:empty_string",
+        "//source/common/common:enum_to_int",
+        "//source/common/network:raw_buffer_socket_lib",
+        "//source/common/protobuf:utility_lib",
+    ],
+)
+
+envoy_cc_library(
+    name = "noop_transport_socket_callbacks_lib",
+    hdrs = ["noop_transport_socket_callbacks.h"],
+    deps = [
+        "//envoy/network:io_handle_interface",
+        "//envoy/network:transport_socket_interface",
+    ],
+)
