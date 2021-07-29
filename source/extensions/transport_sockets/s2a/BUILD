@@ -82,5 +82,24 @@ envoy_cc_library(
     deps = [
         "//envoy/network:io_handle_interface",
         "//envoy/network:transport_socket_interface",
+        
+envoy_cc_extension(
+    name = "config",
+    srcs = [
+        "config.cc",
+    ],
+    hdrs = [
+        "config.h",
+    ],
+    external_deps = [
+        "abseil_node_hash_set",
+    ],
+    deps = [
+        ":tsi_handshaker",
+        ":tsi_socket",
+        "//envoy/registry",
+        "//envoy/server:transport_socket_config_interface",
+        "//source/common/grpc:google_grpc_context_lib",
+        "@envoy_api//envoy/extensions/transport_sockets/s2a/v3alpha:pkg_cc_proto",
     ],
 )
