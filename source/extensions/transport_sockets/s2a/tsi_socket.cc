@@ -148,7 +148,7 @@ Network::PostIoAction TsiSocket::doHandshakeNextDone(NextResultPtr&& next_result
         handshaker_result, &default_max_frame_size_, &frame_protector);
     ASSERT(status == TSI_OK);
 
-    // TODO(yihuazhang): Check the return value once fake TSI frame protector
+    // TODO(tavishvaidya): Check the return value once fake TSI frame protector
     // used in tsi_socket_test.cc implements the interface returning the max frame size.
     tsi_zero_copy_grpc_protector_max_frame_size(frame_protector, &actual_frame_size_to_use_);
 
@@ -324,7 +324,7 @@ Network::IoResult TsiSocket::repeatProtectAndWrite(Buffer::Instance& buffer, boo
 Network::IoResult TsiSocket::doWrite(Buffer::Instance& buffer, bool end_stream) {
   if (!handshake_complete_) {
     Network::PostIoAction action = doHandshake();
-    // Envoy ALTS implements asynchronous tsi_handshaker_next() interface
+    // Envoy S2A implements asynchronous tsi_handshaker_next() interface
     // which returns immediately after scheduling a handshake request to
     // the handshake service. The handshake response will be handled by a
     // dedicated thread in a separate API within which handshake_complete_

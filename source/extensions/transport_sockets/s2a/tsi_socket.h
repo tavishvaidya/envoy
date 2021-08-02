@@ -76,7 +76,7 @@ public:
   // TsiHandshakerCallbacks
   void onNextDone(NextResultPtr&& result) override;
 
-  // This API should be called only after ALTS handshake finishes successfully.
+  // This API should be called only after S2A handshake finishes successfully.
   size_t actualFrameSizeToUse() { return actual_frame_size_to_use_; }
   // Set actual_frame_size_to_use_. Exposed for testing purpose.
   void setActualFrameSizeToUse(size_t frame_size) { actual_frame_size_to_use_ = frame_size; }
@@ -108,7 +108,7 @@ private:
   // frame protector, which is the result of frame size negotiation.
   size_t actual_frame_size_to_use_{0};
   // frame_overhead_size_ includes 4 bytes frame message type and 16 bytes tag length.
-  // It is consistent with gRPC ALTS zero copy frame protector implementation.
+  // It is consistent with gRPC S2A zero copy frame protector implementation.
   // The maximum size of data that can be protected for each frame is equal to
   // actual_frame_size_to_use_ - frame_overhead_size_.
   size_t frame_overhead_size_{20};
