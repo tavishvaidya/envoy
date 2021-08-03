@@ -148,10 +148,9 @@ Network::PostIoAction TsiSocket::doHandshakeNextDone(NextResultPtr&& next_result
         handshaker_result, &default_max_frame_size_, &frame_protector);
     ASSERT(status == TSI_OK);
 
-    // TODO(tavishvaidya): Check the return value once fake TSI frame protector
-    // used in tsi_socket_test.cc implements the interface returning the max frame size.
-    tsi_zero_copy_grpc_protector_max_frame_size(frame_protector, &actual_frame_size_to_use_);
-
+    status = tsi_zero_copy_grpc_protector_max_frame_size(frame_protector, &actual_frame_size_to_use_);
+    ASSERT(status == TSI_OK);
+    ASSERT(actual_frame_size_to_use_ == 16384);
     // Reset the watermarks with actual negotiated max frame size.
     raw_read_buffer_.setWatermarks(
         std::max<size_t>(actual_frame_size_to_use_, callbacks_->connection().bufferLimit()));
