@@ -10,7 +10,10 @@
 #pragma GCC diagnostic ignored "-Wold-style-cast"
 #endif
 
-
+#include "grpc/grpc_security.h"
+#include "src/core/lib/transport/transport.h"
+#include "src/core/tsi/s2a/s2a_shared_resource.h"
+#include "src/core/tsi/s2a/s2a_tsi_handshaker.h"
 #include "src/core/tsi/transport_security_grpc.h"
 #include "src/core/tsi/transport_security_interface.h"
 

@@ -16,6 +16,7 @@ envoy_cc_library(
     ],
     external_deps = [
         "grpc",
+        "alts_util",
     ],
     visibility = ["//visibility:private"],
     deps = [
@@ -95,8 +96,8 @@ envoy_cc_extension(
     ],
     external_deps = [
         "abseil_node_hash_set",
-        "grpc",
         "s2a_tsi",
+        "alts_util",
     ],
     deps = [
         ":tsi_handshaker",

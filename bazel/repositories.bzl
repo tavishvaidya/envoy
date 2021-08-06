@@ -898,6 +898,11 @@ def _com_github_grpc_grpc():
         actual = "@com_github_grpc_grpc//:s2a_tsi",
     )
 
+    native.bind(
+        name = "alts_util",
+        actual = "@com_github_grpc_grpc//:alts_util",
+    )
+
 def _upb():
     external_http_archive(name = "upb")
 
