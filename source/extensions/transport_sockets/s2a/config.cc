@@ -12,7 +12,10 @@
 #include "source/extensions/transport_sockets/s2a/grpc_tsi.h"
 #include "source/extensions/transport_sockets/s2a/tsi_socket.h"
 
+#include "src/core/tsi/s2a/grpc_s2a_credentials_options.h"
+
 #include "absl/container/node_hash_set.h"
+#include "absl/status/statusor.h"
 #include "absl/strings/str_join.h"
 
 namespace Envoy {
@@ -20,27 +23,18 @@ namespace Extensions {
 namespace TransportSockets {
 namespace S2A {
 
-// smart pointer for grpc_alts_credentials_options that will be automatically freed.
-using GrpcAltsCredentialsOptionsPtr =
-    CSmartPtr<grpc_alts_credentials_options, grpc_alts_credentials_options_destroy>;
+// smart pointer for grpc_s2a_credentials_options that will be automatically freed.
+using GrpcS2ACredentialsOptionsPtr =
+    CSmartPtr<grpc_s2a_credentials_options, grpc_s2a_credentials_options_destroy>;
 
 namespace {
 
-// TODO: gRPC v1.30.0-pre1 defines the equivalent function grpc_alts_set_rpc_protocol_versions
-// that should be called directly when available.
-void grpcAltsSetRpcProtocolVersions(grpc_gcp_rpc_protocol_versions* rpc_versions) {
-  grpc_gcp_rpc_protocol_versions_set_max(rpc_versions, GRPC_PROTOCOL_VERSION_MAX_MAJOR,
-                                         GRPC_PROTOCOL_VERSION_MAX_MINOR);
-  grpc_gcp_rpc_protocol_versions_set_min(rpc_versions, GRPC_PROTOCOL_VERSION_MIN_MAJOR,
-                                         GRPC_PROTOCOL_VERSION_MIN_MINOR);
-}
-
-// Manage ALTS singleton state via SingletonManager
-class AltsSharedState : public Singleton::Instance {
+// Manage S2A singleton state via SingletonManager
+class S2ASharedState : public Singleton::Instance {
 public:
-  AltsSharedState() { grpc_alts_shared_resource_dedicated_init(); }
+  S2ASharedState() { grpc_s2a_shared_resource_dedicated_init(); }
 
-  ~AltsSharedState() override { grpc_alts_shared_resource_dedicated_shutdown(); }
+  ~S2ASharedState() override { grpc_s2a_shared_resource_dedicated_shutdown(); }
 
 private:
   // There is blanket google-grpc initialization in MainCommonBase, but that
@@ -54,14 +48,14 @@ private:
 #endif
 };
 
-SINGLETON_MANAGER_REGISTRATION(alts_shared_state);
+SINGLETON_MANAGER_REGISTRATION(s2a_shared_state);
 
 Network::TransportSocketFactoryPtr createTransportSocketFactoryHelper(
     const Protobuf::Message& message, bool is_upstream,
     Server::Configuration::TransportSocketFactoryContext& factory_ctxt) {
-  auto alts_shared_state = factory_ctxt.singletonManager().getTyped<AltsSharedState>(
-      SINGLETON_MANAGER_REGISTERED_NAME(alts_shared_state),
-      [] { return std::make_shared<AltsSharedState>(); });      
+  auto s2a_shared_state = factory_ctxt.singletonManager().getTyped<S2ASharedState>(
+      SINGLETON_MANAGER_REGISTERED_NAME(s2a_shared_state),
+      [] { return std::make_shared<S2ASharedState>(); });      
   auto config =
       MessageUtil::downcastAndValidate<const envoy::extensions::transport_sockets::s2a::v3alpha::S2AConfiguration&>(
           message, factory_ctxt.messageValidationVisitor());
@@ -69,35 +63,31 @@ Network::TransportSocketFactoryPtr createTransportSocketFactoryHelper(
   const std::string& handshaker_service = config.s2a_address();
   HandshakerFactory factory =
       [handshaker_service, is_upstream,
-       alts_shared_state](Event::Dispatcher& dispatcher,
+       s2a_shared_state](Event::Dispatcher& dispatcher,
                           const Network::Address::InstanceConstSharedPtr& local_address,
                           const Network::Address::InstanceConstSharedPtr&) -> TsiHandshakerPtr {
     ASSERT(local_address != nullptr);
 
-    GrpcAltsCredentialsOptionsPtr options;
-    if (is_upstream) {
-      options = GrpcAltsCredentialsOptionsPtr(grpc_alts_credentials_client_options_create());
-    } else {
-      options = GrpcAltsCredentialsOptionsPtr(grpc_alts_credentials_server_options_create());
-    }
-    grpcAltsSetRpcProtocolVersions(&options->rpc_versions);
+    GrpcS2ACredentialsOptionsPtr options;
+    options = GrpcS2ACredentialsOptionsPtr(grpc_s2a_credentials_options_create());
     const char* target_name = is_upstream ? "" : nullptr;
     tsi_handshaker* handshaker = nullptr;
+    const std::string handshaker_name = is_upstream ? "client" : "server";
     // Specifying target name as empty since TSI won't take care of validating peer identity
     // in this use case. The validation will be performed by TsiSocket with the validator.
     // Set the max frame size to 16KB.
-    tsi_result status = alts_tsi_handshaker_create(
-        options.get(), target_name, handshaker_service.c_str(), is_upstream,
-        nullptr /* interested_parties */, &handshaker, 16384 /* default max frame size */);
+    S2ATsiHandshakerOptions s2a_options{nullptr, is_upstream, options.get(), handshaker_service};
+    absl::StatusOr<tsi_handshaker*> s2a_handshaker = CreateS2ATsiHandshaker(s2a_options);
+    
     CHandshakerPtr handshaker_ptr{handshaker};
 
-    if (status != TSI_OK) {
+    if (!s2a_handshaker.ok()) {
       const std::string handshaker_name = is_upstream ? "client" : "server";
-      ENVOY_LOG_MISC(warn, "Cannot create ATLS {} handshaker, status: {}", handshaker_name, status);
+      ENVOY_LOG_MISC(warn, "Cannot create S2A {} handshaker, status: {}", handshaker_name, s2a_handshaker.status());
       return nullptr;
     }
 
-    return std::make_unique<TsiHandshaker>(std::move(handshaker_ptr), dispatcher);
+    return std::make_unique<TsiHandshaker>(std::move(*s2a_handshaker), dispatcher);
   };
 
   return std::make_unique<TsiSocketFactory>(factory, validator);
@@ -124,10 +114,10 @@ DownstreamS2ATransportSocketConfigFactory::createTransportSocketFactory(
   return createTransportSocketFactoryHelper(message, /* is_upstream */ false, factory_ctxt);
 }
 
-REGISTER_FACTORY(UpstreamAltsTransportSocketConfigFactory,
+REGISTER_FACTORY(UpstreamS2ATransportSocketConfigFactory,
                  Server::Configuration::UpstreamTransportSocketConfigFactory);
 
-REGISTER_FACTORY(DownstreamAltsTransportSocketConfigFactory,
+REGISTER_FACTORY(DownstreamS2ATransportSocketConfigFactory,
                  Server::Configuration::DownstreamTransportSocketConfigFactory);
 
 } // namespace S2A

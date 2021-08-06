@@ -82,6 +82,8 @@ envoy_cc_library(
     deps = [
         "//envoy/network:io_handle_interface",
         "//envoy/network:transport_socket_interface",
+    ],
+)
         
 envoy_cc_extension(
     name = "config",
@@ -93,6 +95,8 @@ envoy_cc_extension(
     ],
     external_deps = [
         "abseil_node_hash_set",
+        "grpc",
+        "s2a_tsi",
     ],
     deps = [
         ":tsi_handshaker",

@@ -151,6 +151,7 @@ def envoy_dependencies(skip_targets = []):
     _com_google_absl()
     _com_google_googletest()
     _com_google_protobuf()
+    _com_google_s2a_core()
     _io_opencensus_cpp()
     _com_github_curl()
     _com_github_envoyproxy_sqlparser()
@@ -166,6 +167,7 @@ def envoy_dependencies(skip_targets = []):
     _proxy_wasm_cpp_sdk()
     _proxy_wasm_cpp_host()
     _emscripten_toolchain()
+    _rules_foreign_cc()
     _rules_fuzzing()
     external_http_archive("proxy_wasm_rust_sdk")
     external_http_archive("com_googlesource_code_re2")
@@ -623,6 +625,37 @@ def _com_google_absl():
         actual = "@com_google_absl//absl/status",
     )
 
+def _com_google_s2a_core():
+    external_http_archive ("com_google_s2a_core")
+    native.bind(
+        name = "s2a_core",
+        actual = "@com_google_s2a_core//:s2a_core",
+    )
+    native.bind(
+        name = "s2a_core_common_upb",
+        actual = "@com_google_s2a_core//s2a/src/proto/upb-generated/proto:common_upb_proto",
+    )
+    native.bind(
+        name = "s2a_core_s2a_upb",
+        actual = "@com_google_s2a_core//s2a/src/proto/upb-generated/proto:s2a_upb_proto",
+    )
+    native.bind(
+        name = "s2a_core_s2a_context_upb",
+        actual = "@com_google_s2a_core//s2a/src/proto/upb-generated/proto:s2a_context_upb_proto",
+    )
+    native.bind(
+        name = "s2a_core_proxy_test_util",
+        actual = "@com_google_s2a_core//:s2a_proxy_test_util",
+    )
+    native.bind(
+        name = "s2a_core_test_data",
+        actual = "@com_google_s2a_core//:s2a_test_data",
+    )
+    native.bind(
+        name = "s2a_core_token_manager",
+        actual = "@com_google_s2a_core//:single_token_access_token_manager",
+    )
+
 def _com_google_protobuf():
     # TODO(phlax): remove patch
     #    patch is applied to update setuptools to version (0.5.4),
@@ -946,6 +979,9 @@ def _com_github_gperftools_gperftools():
         name = "gperftools",
         actual = "@envoy//bazel/foreign_cc:gperftools",
     )
+
+def _rules_foreign_cc():
+    external_http_archive("rules_foreign_cc")
 
 def _org_llvm_llvm():
     external_http_archive(
