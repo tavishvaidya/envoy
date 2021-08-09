@@ -1,0 +1,12 @@
+diff --git a/BUILD b/BUILD
+index db920055e..fe5597711 100644
+--- a/BUILD
++++ b/BUILD
+@@ -2732,6 +2732,7 @@ grpc_cc_library(
+         "s2a_core_token_manager",
+     ],
+     language = "c++",
++    public_hdrs = GRPC_SECURE_PUBLIC_HDRS,
+     deps = [
+         "gpr",
+         "gpr_base",

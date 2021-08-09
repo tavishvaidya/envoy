@@ -811,7 +811,9 @@ def _org_llvm_releases_compiler_rt():
     )
 
 def _com_github_grpc_grpc():
-    external_http_archive("com_github_grpc_grpc")
+    external_http_archive(name = "com_github_grpc_grpc",
+                          patch_args = ["-p1"],
+                          patches = ["@envoy//bazel:grpc.patch"],)
     external_http_archive("build_bazel_rules_apple")
 
     # Rebind some stuff to match what the gRPC Bazel is expecting.
