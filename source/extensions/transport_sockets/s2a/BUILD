@@ -16,10 +16,32 @@ envoy_cc_library(
     ],
     external_deps = [
         "grpc",
+        "s2a_tsi",
     ],
     visibility = ["//visibility:private"],
     deps = [
         "//source/common/common:c_smart_ptr_lib",
+    ],
+)
+
+envoy_cc_extension(
+    name = "config",
+    srcs = [
+        "config.cc",
+    ],
+    hdrs = [
+        "config.h",
+    ],
+    external_deps = [
+        "abseil_node_hash_set",
+    ],
+    deps = [
+        ":tsi_handshaker",
+        ":tsi_socket",
+        "//envoy/registry",
+        "//envoy/server:transport_socket_config_interface",
+        "//source/common/grpc:google_grpc_context_lib",
+        "@envoy_api//envoy/extensions/transport_sockets/s2a/v3alpha:pkg_cc_proto",
     ],
 )
 
