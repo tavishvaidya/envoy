@@ -20,10 +20,9 @@ namespace Envoy {
 namespace Extensions {
 namespace TransportSockets {
 namespace S2A {
-
 namespace {
 
-// Manage ALTS singleton state via SingletonManager
+// Manage S2A singleton state via SingletonManager
 class S2ASharedState : public Singleton::Instance {
 public:
   S2ASharedState() { grpc_s2a_shared_resource_dedicated_init(); }
@@ -56,22 +55,22 @@ Network::TransportSocketFactoryPtr createTransportSocketFactoryHelper(
       MessageUtil::downcastAndValidate<const envoy::extensions::transport_sockets::s2a::v3alpha::S2AConfiguration&>(
           message, factory_ctxt.messageValidationVisitor());
 
-  const std::string& handshaker_service = config.s2a_address();
+  const std::string& s2a_address = config.s2a_address();
   HandshakerFactory factory =
-      [handshaker_service, is_upstream,
+      [s2a_address, is_upstream,
        s2a_shared_state](Event::Dispatcher& dispatcher,
                           const Network::Address::InstanceConstSharedPtr& local_address,
                           const Network::Address::InstanceConstSharedPtr&) -> TsiHandshakerPtr {
     ASSERT(local_address != nullptr);
 
     grpc_s2a_credentials_options* options = grpc_s2a_credentials_options_create();
-    grpc_s2a_credentials_options_set_s2a_address(options, handshaker_service.c_str());
+    grpc_s2a_credentials_options_set_s2a_address(options, s2a_address.c_str());
     const char* target_name = is_upstream ? "" : nullptr;
-    s2a::tsi::S2ATsiHandshakerOptions handshaker_options{nullptr, is_upstream, options, target_name};
+    s2a::tsi::S2ATsiHandshakerOptions s2a_options{/* interested_parties= */nullptr, is_upstream, options, target_name};
     // Specifying target name as empty since TSI won't take care of validating peer identity
     // in this use case. The validation will be performed by TsiSocket with the validator.
     // Set the max frame size to 16KB.
-    absl::StatusOr<tsi_handshaker*> tsi_handshaker_ptr = CreateS2ATsiHandshaker(handshaker_options);
+    absl::StatusOr<tsi_handshaker*> tsi_handshaker_ptr = CreateS2ATsiHandshaker(s2a_options);
 
     if (!tsi_handshaker_ptr.ok()) {
       const std::string handshaker_name = is_upstream ? "client" : "server";
@@ -84,7 +83,7 @@ Network::TransportSocketFactoryPtr createTransportSocketFactoryHelper(
     return std::make_unique<TsiHandshaker>(std::move(*tsi_handshaker_ptr), dispatcher);
   };
 
-  return std::make_unique<TsiSocketFactory>(factory, nullptr);
+  return std::make_unique<TsiSocketFactory>(factory, /* validator= */ nullptr);
 }
 
 } // namespace
