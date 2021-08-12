@@ -34,6 +34,7 @@ envoy_cc_extension(
     ],
     external_deps = [
         "abseil_node_hash_set",
+        "s2a_tsi",
     ],
     deps = [
         ":tsi_handshaker",

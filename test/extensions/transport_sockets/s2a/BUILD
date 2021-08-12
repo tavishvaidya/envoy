@@ -15,7 +15,7 @@ envoy_package()
 envoy_extension_cc_test(
     name = "config_test",
     srcs = ["config_test.cc"],
-    extension_names = ["envoy.transport_sockets.alts"],
+    extension_names = ["envoy.transport_sockets.s2a"],
     deps = [
         "//source/common/singleton:manager_impl_lib",
         "//source/extensions/transport_sockets/s2a:config",

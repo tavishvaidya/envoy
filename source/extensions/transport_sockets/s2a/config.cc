@@ -23,7 +23,7 @@ namespace S2A {
 namespace {
 
 // Manage S2A singleton state via SingletonManager
-class S2ASharedState : public Singleton::Instance {
+class S2ASharedState final : public Singleton::Instance {
 public:
   S2ASharedState() { grpc_s2a_shared_resource_dedicated_init(); }
 
@@ -62,19 +62,17 @@ Network::TransportSocketFactoryPtr createTransportSocketFactoryHelper(
                           const Network::Address::InstanceConstSharedPtr& local_address,
                           const Network::Address::InstanceConstSharedPtr&) -> TsiHandshakerPtr {
     ASSERT(local_address != nullptr);
-
+    std::cout << "Hello, world!" << std::endl;
     grpc_s2a_credentials_options* options = grpc_s2a_credentials_options_create();
     grpc_s2a_credentials_options_set_s2a_address(options, s2a_address.c_str());
     const char* target_name = is_upstream ? "" : nullptr;
     s2a::tsi::S2ATsiHandshakerOptions s2a_options{/* interested_parties= */nullptr, is_upstream, options, target_name};
-    // Specifying target name as empty since TSI won't take care of validating peer identity
-    // in this use case. The validation will be performed by TsiSocket with the validator.
-    // Set the max frame size to 16KB.
     absl::StatusOr<tsi_handshaker*> tsi_handshaker_ptr = CreateS2ATsiHandshaker(s2a_options);
 
     if (!tsi_handshaker_ptr.ok()) {
-      const std::string handshaker_name = is_upstream ? "client" : "server";
-      ENVOY_LOG_MISC(warn, "Cannot create S2A {} handshaker, status: {}", handshaker_name, tsi_handshaker_ptr.status());
+        // is_upstream is true if the stream of communication is with the client
+      std::string handshaker_side = is_upstream ? "client" : "server";
+      ENVOY_LOG_MISC(warn, "Cannot create S2A {} handshaker, status: {}", handshaker_side, tsi_handshaker_ptr.status());
       return nullptr;
     }
 
@@ -83,7 +81,7 @@ Network::TransportSocketFactoryPtr createTransportSocketFactoryHelper(
     return std::make_unique<TsiHandshaker>(std::move(*tsi_handshaker_ptr), dispatcher);
   };
 
-  return std::make_unique<TsiSocketFactory>(factory, /* validator= */ nullptr);
+  return std::make_unique<TsiSocketFactory>(factory, /*validator=*/ nullptr);
 }
 
 } // namespace
@@ -96,7 +94,7 @@ Network::TransportSocketFactoryPtr
 UpstreamS2ATransportSocketConfigFactory::createTransportSocketFactory(
     const Protobuf::Message& message,
     Server::Configuration::TransportSocketFactoryContext& factory_ctxt) {
-  return createTransportSocketFactoryHelper(message, /* is_upstream */ true, factory_ctxt);
+  return createTransportSocketFactoryHelper(message, /*is_upstream=*/ true, factory_ctxt);
 }
 
 Network::TransportSocketFactoryPtr
@@ -104,7 +102,7 @@ DownstreamS2ATransportSocketConfigFactory::createTransportSocketFactory(
     const Protobuf::Message& message,
     Server::Configuration::TransportSocketFactoryContext& factory_ctxt,
     const std::vector<std::string>&) {
-  return createTransportSocketFactoryHelper(message, /* is_upstream */ false, factory_ctxt);
+  return createTransportSocketFactoryHelper(message, /*is_upstream=*/ false, factory_ctxt);
 }
 
 REGISTER_FACTORY(UpstreamS2ATransportSocketConfigFactory,

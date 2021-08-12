@@ -7,14 +7,14 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-using Envoy::Server::Configuration::MockTransportSocketFactoryContext;
-using testing::ReturnRef;
-
 namespace Envoy {
 namespace Extensions {
 namespace TransportSockets {
 namespace S2A {
 namespace {
+
+using Envoy::Server::Configuration::MockTransportSocketFactoryContext;
+using testing::ReturnRef;
 
 TEST(UpstreamS2AConfigTest, CreateSocketFactory) {
   NiceMock<MockTransportSocketFactoryContext> factory_context;
@@ -29,7 +29,7 @@ TEST(UpstreamS2AConfigTest, CreateSocketFactory) {
   )EOF";
   TestUtility::loadFromYaml(yaml, *config);
 
-  auto socket_factory = factory.createTransportSocketFactory(*config, factory_context);
+  Network::TransportSocketFactoryPtr socket_factory = factory.createTransportSocketFactory(*config, factory_context);
 
   EXPECT_NE(nullptr, socket_factory);
   EXPECT_TRUE(socket_factory->implementsSecureTransport());
@@ -48,7 +48,7 @@ TEST(DownstreamS2AConfigTest, CreateSocketFactory) {
   )EOF";
   TestUtility::loadFromYaml(yaml, *config);
 
-  auto socket_factory = factory.createTransportSocketFactory(*config, factory_context, {});
+  Network::TransportSocketFactoryPtr socket_factory = factory.createTransportSocketFactory(*config, factory_context, {});
 
   EXPECT_NE(nullptr, socket_factory);
   EXPECT_TRUE(socket_factory->implementsSecureTransport());
