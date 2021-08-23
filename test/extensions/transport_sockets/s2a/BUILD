@@ -19,6 +19,7 @@ envoy_extension_cc_test(
     deps = [
         "//source/common/singleton:manager_impl_lib",
         "//source/extensions/transport_sockets/s2a:config",
+        "//source/extensions/transport_sockets/s2a:tsi_socket",
         "//test/mocks/event:event_mocks",
         "//test/mocks/network:network_mocks",
         "//test/mocks/server:transport_socket_factory_context_mocks",

@@ -52,13 +52,22 @@ Network::PostIoAction TsiSocket::doHandshake() {
 }
 
 void TsiSocket::doHandshakeNext() {
+  std::cout << "Entered doHandshakeNext" << std::endl;
   ENVOY_CONN_LOG(debug, "TSI: doHandshake next: received: {}", callbacks_->connection(),
                  raw_read_buffer_.length());
-
+  std::cout << "After logging" << std::endl;
   if (!handshaker_) {
+    std::cout << "After checking handshaker" << std::endl;
+    if (!handshaker_factory_){
+      std::cout << "Handshaker factory not populated" << std::endl;
+    }
+    if (!callbacks_){
+      std::cout << "Callbacks not populated" << std::endl;
+    }
     handshaker_ = handshaker_factory_(callbacks_->connection().dispatcher(),
                                       callbacks_->connection().addressProvider().localAddress(),
                                       callbacks_->connection().addressProvider().remoteAddress());
+    std:: cout << "After lambda function" << std::endl;
     if (!handshaker_) {
       ENVOY_CONN_LOG(warn, "TSI: failed to create handshaker", callbacks_->connection());
       callbacks_->connection().close(Network::ConnectionCloseType::NoFlush);

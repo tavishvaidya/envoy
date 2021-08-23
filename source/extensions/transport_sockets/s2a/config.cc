@@ -61,11 +61,13 @@ Network::TransportSocketFactoryPtr createTransportSocketFactoryHelper(
        s2a_shared_state](Event::Dispatcher& dispatcher,
                           const Network::Address::InstanceConstSharedPtr& local_address,
                           const Network::Address::InstanceConstSharedPtr&) -> TsiHandshakerPtr {
+    // Merely using local_address here for proper Bazel build, variable needs to be used
+    std::cout << "Entered lambda function." << std::endl;
     ASSERT(local_address != nullptr);
-    std::cout << "Hello, world!" << std::endl;
+    std::cout << "Asserted local address." << std::endl;
     grpc_s2a_credentials_options* options = grpc_s2a_credentials_options_create();
     grpc_s2a_credentials_options_set_s2a_address(options, s2a_address.c_str());
-    const char* target_name = is_upstream ? "" : nullptr;
+    const char* target_name = is_upstream ? "" : nullptr; // TODO(djmoore): Populate target name
     s2a::tsi::S2ATsiHandshakerOptions s2a_options{/* interested_parties= */nullptr, is_upstream, options, target_name};
     absl::StatusOr<tsi_handshaker*> tsi_handshaker_ptr = CreateS2ATsiHandshaker(s2a_options);
 
