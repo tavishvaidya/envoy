@@ -13,6 +13,20 @@ licenses(["notice"])  # Apache 2
 envoy_package()
 
 envoy_extension_cc_test(
+    name = "config_test",
+    srcs = ["config_test.cc"],
+    extension_names = ["envoy.transport_sockets.s2a"],
+    deps = [
+        "//source/common/singleton:manager_impl_lib",
+        "//source/extensions/transport_sockets/s2a:config",
+        "//source/extensions/transport_sockets/s2a:tsi_socket",
+        "//test/mocks/event:event_mocks",
+        "//test/mocks/network:network_mocks",
+        "//test/mocks/server:transport_socket_factory_context_mocks",
+    ],
+)
+
+envoy_extension_cc_test(
     name = "tsi_frame_protector_test",
     srcs = ["tsi_frame_protector_test.cc"],
     extension_names = ["envoy.transport_sockets.s2a"],
