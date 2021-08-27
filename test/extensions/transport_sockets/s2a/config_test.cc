@@ -361,21 +361,21 @@ public:
   /**
    * Register callbacks that fire when connection events occur.
    */
-   void addConnectionCallbacks(Network::ConnectionCallbacks& cb) override {
+   void addConnectionCallbacks(Network::ConnectionCallbacks&) override {
        return;
    };
 
   /**
    * Unregister callbacks which previously fired when connection events occur.
    */
-   void removeConnectionCallbacks(Network::ConnectionCallbacks& cb) override {
+   void removeConnectionCallbacks(Network::ConnectionCallbacks&) override {
        return;
    };
 
   /**
    * Register for callback every time bytes are written to the underlying TransportSocket.
    */
-   void addBytesSentCallback(BytesSentCb cb) override {
+   void addBytesSentCallback(BytesSentCb) override {
        return;
    };
 
@@ -384,7 +384,7 @@ public:
    * will not fully close the connection. This is off by default.
    * @param enabled Whether to set half-close semantics as enabled or disabled.
    */
-   void enableHalfClose(bool enabled) override {
+   void enableHalfClose(bool) override {
        return;
    };
 
@@ -398,7 +398,7 @@ public:
   /**
    * Close the connection.
    */
-   void close(Network::ConnectionCloseType type) override {
+   void close(Network::ConnectionCloseType) override {
        return;
    };
 
@@ -420,7 +420,7 @@ public:
    * @param vector of bytes to which the connection should append hash key data. Any data already in
    * the key vector must not be modified.
    */
-   void hashKey(std::vector<uint8_t>& hash) const override {
+   void hashKey(std::vector<uint8_t>&) const override {
        return;
    };
 
@@ -436,7 +436,7 @@ public:
   /**
    * Enable/Disable TCP NO_DELAY on the connection.
    */
-   void noDelay(bool enable) override {
+   void noDelay(bool) override {
        return;
    };
 
@@ -452,7 +452,7 @@ public:
    * readDisable(false);  // Notes the connection is blocked by one source
    * readDisable(false);  // Marks the connection as unblocked, so resumes reading.
    */
-   void readDisable(bool disable) override {
+   void readDisable(bool) override {
        return;
    };
 
@@ -463,7 +463,7 @@ public:
    * @param should_detect supplies if disconnects should be detected when the connection has been
    * read disabled
    */
-   void detectEarlyCloseWhenReadDisabled(bool should_detect) override {
+   void detectEarlyCloseWhenReadDisabled(bool) override {
        return;
    };
 
@@ -515,7 +515,7 @@ public:
    * these stats are eventually consistent and may not always accurately represent the connection
    * state at any given point in time.
    */
-   void setConnectionStats(const ConnectionStats& stats) override {
+   void setConnectionStats(const ConnectionStats&) override {
        return;
    };
 
@@ -557,7 +557,7 @@ public:
    *        end_stream is true, the connection is half-closed. This may only be set to true if
    *        enableHalfClose(true) has been set on this connection.
    */
-   void write(Buffer::Instance& data, bool end_stream) override {
+   void write(Buffer::Instance&, bool) override {
        return;
    };
 
@@ -571,7 +571,7 @@ public:
    * write buffer, onBelowWriteBufferHighWatermark is called which similarly allows subscribers
    * resuming reading.
    */
-   void setBufferLimits(uint32_t limit) override {
+   void setBufferLimits(uint32_t) override {
        return;
    };
 
@@ -613,7 +613,7 @@ public:
    * This can only be called prior to issuing a close() on the connection.
    * @param timeout The timeout value in milliseconds
    */
-   void setDelayedCloseTimeout(std::chrono::milliseconds timeout) override {
+   void setDelayedCloseTimeout(std::chrono::milliseconds) override {
        return;
    };
 
